@@ -6,6 +6,7 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/renderers/CSS3DRenderer.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
@@ -164,13 +165,12 @@ renderer.setSize(window.innerWidth,window.innerHeight);
 /// This defines the canvas element (in the HTML) the rendere uses to display the scene --> other than body?
 document.body.appendChild(renderer.domElement);
 
-var controls = new THREE.TrackballControls(camera, renderer.domElement);
-controls.rotateSpeed = 5.0;
-controls.zoomSpeed = 5;
-controls.panSpeed = 2;
+//var controls = new THREE.TrackballControls(camera, renderer.domElement);
+//controls.rotateSpeed = 5.0;
+//controls.zoomSpeed = 5;
+//controls.panSpeed = 2;
 
-controls.dynamicDampingFactor = 0.3;
-
+//controls.dynamicDampingFactor = 0.3;
 
 ///////////////////
 //Update Function//
@@ -224,6 +224,8 @@ var dataGrowthX = dataCanton.map(function(d) {return d.lwachstum/10})
 var dataGrowthY = dataCanton.map(function(d) {return d.lwachstum/10})
 var dataGrowthZ = dataCanton.map(function(d) {return d.hwachstum/10})
 
+var cantonTyp = dataCanton.map(function(d) {return d.typ})
+
 ////////////
 //Big Cube//
 ////////////
@@ -231,7 +233,17 @@ var dataGrowthZ = dataCanton.map(function(d) {return d.hwachstum/10})
 var cube_status_quo = new THREE.BoxGeometry(1,1,1,)
 
 /// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
-var material = new THREE.MeshPhongMaterial({color: "#e2201a"})
+if (cantonTyp == 1) {
+        var material = new THREE.MeshPhongMaterial({color: "#e2201a"})
+    } else if (cantonTyp ==2 ){
+        var material = new THREE.MeshPhongMaterial({color: "#ffc300"})
+    } else if (cantonTyp == 3) {
+        var material = new THREE.MeshPhongMaterial({color: "#81ff33"})  
+    } else if (cantonTyp == 4) {
+        var material = new THREE.MeshPhongMaterial({color: "#335dff"})
+    }
+
+
 material.shininess = 50;
 /// Mesh: A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene and move freely around
 var cube_sq = new THREE.Mesh(cube_status_quo,material);
@@ -258,10 +270,21 @@ cube_sq.translateZ(dataCantonZ/2);
 var cube_growth = new THREE.BoxGeometry(1,1,1,)
 
 /// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
-var material = new THREE.MeshPhongMaterial({color: "#808080"})
-material.shininess = 50;
+/// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
+if (cantonTyp == 1) {
+        var material_sc = new THREE.MeshPhongMaterial({color: "#e2201a"})
+    } else if (cantonTyp ==2 ){
+        var material_sc = new THREE.MeshPhongMaterial({color: "#ffc300"})
+    } else if (cantonTyp == 3) {
+        var material_sc = new THREE.MeshPhongMaterial({color: "#81ff33"})  
+    } else if (cantonTyp == 4) {
+        var material_sc = new THREE.MeshPhongMaterial({color: "#335dff"})
+    }
+
+
+material_sc.shininess = 50;
 /// Mesh: A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene and move freely around
-var cube_growth = new THREE.Mesh(cube_growth,material);
+var cube_growth = new THREE.Mesh(cube_growth,material_sc);
 
 cube_growth.scale.x = dataGrowthX;
 cube_growth.scale.y = dataGrowthY;
@@ -308,6 +331,14 @@ grid.translateX(-d/2)
 grid.translateZ(d/2)
 scene.add(grid);
 
+//////////
+// Text //
+//////////
+
+
+
+
+ 
 /////////////////////////
 // Rotate Entire Scene //
 /////////////////////////
