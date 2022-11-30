@@ -165,7 +165,9 @@ renderer.setSize(window.innerWidth,window.innerHeight);
 /// This defines the canvas element (in the HTML) the rendere uses to display the scene --> other than body?
 document.body.appendChild(renderer.domElement);
 
-//var controls = new THREE.TrackballControls(camera, renderer.domElement);
+var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
+cameraControls.target.set(0, 0, 0);
+
 //controls.rotateSpeed = 5.0;
 //controls.zoomSpeed = 5;
 //controls.panSpeed = 2;
@@ -346,6 +348,16 @@ scene.add(grid);
 scene.rotation.x = -1.2;
 scene.rotation.y = 0;
 scene.rotation.z =-0.6;
+
+///////////////////
+// Camera update //
+///////////////////
+var clock = new THREE.Clock();
+var delta = clock.getDelta();
+cameraControls.target.set(0, 0, 0);
+cameraControls.update(delta);
+
+
 
 /////////////////////////////////////////////////////////////////
 // Helper for camera and light (can be disabled when finished) //
