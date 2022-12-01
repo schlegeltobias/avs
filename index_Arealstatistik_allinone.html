@@ -2,21 +2,81 @@
 <html lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Arealstatistik 3D</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/renderers/CSS3DRenderer.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
+<style>
 
+
+
+#Arealstatistik_Grafik {
+    font-size: 22px;
+    font-weight: 500;
+    font-family: Helvetica, Arial, sans-serif;
+
+}
+
+#Arealstatistik_outer_grid {
+    display: grid;
+    grid-gap: 0px;
+    grid-template-rows: repeat(auto-fill, 40px);
+    grid-template-columns: repeat(auto-fill, 40px);
+}
+
+#Arealstatistik_inner_grid {
+    display: grid;
+    grid-template-columns: 250px 600px;
+    grid-template-rows: 40px;
+    background-color: white;
+    padding: 10px 10px 10px 10px;
+    margin-top: 0px;
+}
+
+#chooseCanton {
+    margin-top: 7px;
+}
+
+
+ /* The container must be positioned relative: */
+ #dropdownSelectCanton {
+  position: relative;
+  font-family: inherit;
+  font-size: inherit;
+  background-color: #e1e1e1;
+  border: 0px;
+  display: grid;
+}
+
+/* Style the arrow inside the select element: */
+#dropdownSelectCanton:after {
+content: "";
+width: 0.8em;
+height: 0.5em;
+background-color: (var--select-arrow);
+clip-path: polygon(100% 0%, 0 0%, 50 100%);
+}
+
+
+</style>
+
+</head>
 <body>
 
+    <div id="Arealstatistik_Grafik">
 
-<!--Initialize a button for selecting Cantons-->
-<select id="selectCanton" onclick = "updateValue()"></select>
+        <div id="Arealstatistik_inner_grid">
+            <!--Initialize a button for selecting Cantons-->
+            <p id="chooseCanton">Wähle einen Kanton:</p> 
+            <select id="dropdownSelectCanton" onclick = "updateValue()"></select>
+        </div>
+        <div id="Arealstatistik_outer_grid">
+            <div id="first_cube"></div>
+        </div>
 
-<div id="first_cube"></div>
+    </div>
 
 <!--Run Java Script-->
 <script>
@@ -134,7 +194,7 @@ var allCantons = [{
 ];
 
 // Add the Cantons to the button
-d3.select("#selectCanton")
+d3.select("#dropdownSelectCanton")
     .selectAll("myOptions")
         .data(allCantons)
     .enter()
@@ -165,14 +225,11 @@ renderer.setSize(window.innerWidth,window.innerHeight);
 /// This defines the canvas element (in the HTML) the rendere uses to display the scene --> other than body?
 document.body.appendChild(renderer.domElement);
 
+/////////////////////////////////////////////////
+// Define control for camera zoom and rotation //
+/////////////////////////////////////////////////
 var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
 cameraControls.target.set(0, 0, 0);
-
-//controls.rotateSpeed = 5.0;
-//controls.zoomSpeed = 5;
-//controls.panSpeed = 2;
-
-//controls.dynamicDampingFactor = 0.3;
 
 ///////////////////
 //Update Function//
@@ -196,7 +253,7 @@ light.shadow.mapSize.width = 512;
 light.shadow.mapSize.height = 512;
 scene.add(light);
 
-var selectedCanton = d3.select("#selectCanton option:checked").node().value
+var selectedCanton = d3.select("#dropdownSelectCanton option:checked").node().value
 
 d3.csv("https://raw.githubusercontent.com/schlegeltobias/avs/main/Arealstatistik_01lur.csv").then(function(data) {
     data.forEach(function(d){
@@ -336,8 +393,24 @@ scene.add(grid);
 //////////
 // Text //
 //////////
+/*
+const loader = new FontLoader();
 
+loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
 
+	const geometry = new TextGeometry( 'Hello three.js!', {
+		font: font,
+		size: 80,
+		height: 5,
+		curveSegments: 12,
+		bevelEnabled: true,
+		bevelThickness: 10,
+		bevelSize: 8,
+		bevelOffset: 0,
+		bevelSegments: 5
+	} );
+} );
+*/
 
 
  
@@ -348,16 +421,6 @@ scene.add(grid);
 scene.rotation.x = -1.2;
 scene.rotation.y = 0;
 scene.rotation.z =-0.6;
-
-///////////////////
-// Camera update //
-///////////////////
-var clock = new THREE.Clock();
-var delta = clock.getDelta();
-cameraControls.target.set(0, 0, 0);
-cameraControls.update(delta);
-
-
 
 /////////////////////////////////////////////////////////////////
 // Helper for camera and light (can be disabled when finished) //
@@ -371,17 +434,18 @@ scene.add(worldAxis);
 /// Renderer or animate loop: creates a loop that causes the renderer to draw the scene every time the screen is refreshed
 renderer.render(scene,camera);
 
-/*
+//////////////////////////////////////
+// Enamble Camera Rotation and Zoom //
+//////////////////////////////////////
+
 var animate = function(){
-    scene.rotation.x += 0.01;
-    scene.rotation.y += 0.01;
+    var clock = new THREE.Clock();
+    var delta = clock.getDelta();
+    cameraControls.update(delta);
     renderer.render(scene,camera);
     requestAnimationFrame(animate);
     }
-    
     animate();
-*/
-
 })
 }
 
