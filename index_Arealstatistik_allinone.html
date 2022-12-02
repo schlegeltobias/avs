@@ -7,8 +7,9 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/renderers/CSS3DRenderer.js"></script>
-<style>
+    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/renderers/CSS3DRenderer.js"></script>
+    <sricpt src="https://rawgit.com/mrdoob/three.js/master/examples/js/renderers/CSS2DRenderer.js"></sricpt>
+    <style>
 
 
 
@@ -28,11 +29,13 @@
 
 #Arealstatistik_inner_grid {
     display: grid;
-    grid-template-columns: 250px 600px;
+    grid-template-columns: 210px repeat(auto-fill, 400px);
     grid-template-rows: 40px;
     background-color: white;
     padding: 10px 10px 10px 10px;
     margin-top: 0px;
+    grid-gap: 50px;
+    
 }
 
 #chooseCanton {
@@ -50,15 +53,28 @@
   display: grid;
 }
 
-/* Style the arrow inside the select element: */
-#dropdownSelectCanton:after {
-content: "";
-width: 0.8em;
-height: 0.5em;
-background-color: (var--select-arrow);
-clip-path: polygon(100% 0%, 0 0%, 50 100%);
+#dropdownSelectCanton:hover {
+    background-color: #a6a6a6;
 }
 
+.labelSize {
+    color: #FFF;
+    font-family: sans-serif;
+    padding: 2px;
+    background: rgba( 0, 0, 0, .6 );
+			}
+
+#cameraBack {
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #e1e1e1;
+    border: 0px;
+    text-align: center;
+}
+
+#cameraBack:hover {
+    background-color: #a6a6a6;
+}
 
 </style>
 
@@ -68,12 +84,15 @@ clip-path: polygon(100% 0%, 0 0%, 50 100%);
     <div id="Arealstatistik_Grafik">
 
         <div id="Arealstatistik_inner_grid">
-            <!--Initialize a button for selecting Cantons-->
+            <!--Initialize a selection for Cantons-->
             <p id="chooseCanton">Wähle einen Kanton:</p> 
             <select id="dropdownSelectCanton" onclick = "updateValue()"></select>
+            <!--Initialize a button to set back scene-->
+            <button id="cameraBack" onclick = "updateView()">Kamera-Einstellung zurücksetzen</button> 
         </div>
         <div id="Arealstatistik_outer_grid">
             <div id="first_cube"></div>
+            <div id="container"></div>
         </div>
 
     </div>
@@ -216,7 +235,7 @@ scene.background = new THREE.Color("white");
 /// Second Number: Aspect Ratio, normally width/height
 var camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight);
 /// Because coordinates are at (0,0,0) either move camera out or cube in --> here cube in.
-camera.position.z = 6;
+camera.position.z = 5.5;
 /// Renderer: Where the magic happens --> WebGLRenderer is standard, other types rather for older browsers
 var renderer = new THREE.WebGLRenderer({antialias: true});
 
@@ -225,11 +244,16 @@ renderer.setSize(window.innerWidth,window.innerHeight);
 /// This defines the canvas element (in the HTML) the rendere uses to display the scene --> other than body?
 document.body.appendChild(renderer.domElement);
 
+
 /////////////////////////////////////////////////
 // Define control for camera zoom and rotation //
 /////////////////////////////////////////////////
 var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
 cameraControls.target.set(0, 0, 0);
+// cameraControls.minDistance = 3.5;
+cameraControls.maxDistance = 10;
+
+
 
 ///////////////////
 //Update Function//
@@ -239,6 +263,36 @@ cameraControls.target.set(0, 0, 0);
 function updateValue() {
 
 scene.clear()
+
+//////////////
+// Add grid //
+//////////////
+
+var d = 10
+
+var grid = new THREE.GridHelper(d,d*5);
+// Rotate grid by 90 Degree 
+grid.rotation.x = Math.PI*0.5;
+// Lower grid by half the size of the cube
+grid.translateX(d/2)
+grid.translateZ(d/2)
+scene.add(grid);
+
+var grid = new THREE.GridHelper(d,d*5);
+grid.rotation.x = 0
+// Lower grid by half the size of the cube
+grid.translateX(d/2)
+grid.translateZ(d/2)
+scene.add(grid);
+
+var grid = new THREE.GridHelper(d,d*5);
+// Rotate grid by 90 Degree 
+grid.rotation.z = Math.PI*0.5;
+// Lower grid by half the size of the cube
+grid.translateX(-d/2)
+grid.translateZ(d/2)
+scene.add(grid);
+
 
 /// Turn on shadows in the renderer
 renderer.shadowMap.enabled = true;
@@ -363,57 +417,146 @@ cube_growth.translateX(shift);
 cube_growth.translateY(-dataGrowthY/2);
 cube_growth.translateZ(dataGrowthZ/2);
 
-//////////////
-// Add grid //
-//////////////
 
-var d = 10
+//////////////////////////////
+//////////////////////////////
+// Text for showing measures//
+//////////////////////////////
+//////////////////////////////
 
-var grid = new THREE.GridHelper(d,d*5);
-// Rotate grid by 90 Degree 
-grid.rotation.x = Math.PI*0.5;
-grid.translateX(d/2)
-grid.translateZ(d/2)
-// Lower grid by half the size of the cube
-scene.add(grid);
+var flaecheLabel = dataCanton.map(function(d){return d.flaeche2004})
+var dichteLabel = dataCanton.map(function(d) {return d.dichte2004})
 
-var grid = new THREE.GridHelper(d,d*5);
-grid.rotation.x = 0
-grid.translateX(d/2)
-grid.translateZ(d/2)
-scene.add(grid);
+var fontLoader = new THREE.FontLoader();
+fontLoader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
 
+////////////////////////////
+// Label: Siedlungsdichte //
+////////////////////////////
 
-var grid = new THREE.GridHelper(d,d*5);
-grid.rotation.z = Math.PI*0.5;
-grid.translateX(-d/2)
-grid.translateZ(d/2)
-scene.add(grid);
-
-//////////
-// Text //
-//////////
-/*
-const loader = new FontLoader();
-
-loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-	const geometry = new TextGeometry( 'Hello three.js!', {
+var textGeometry = new THREE.TextGeometry("Siedlungsflaeche:\n"+flaecheLabel+ " km2", {
 		font: font,
-		size: 80,
-		height: 5,
+		size: 0.05*dataCantonY,
+		height: 0,
+        depth: 5,
 		curveSegments: 12,
-		bevelEnabled: true,
-		bevelThickness: 10,
-		bevelSize: 8,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
 		bevelOffset: 0,
-		bevelSegments: 5
-	} );
+		bevelSegments: 1
+	});
+    var  textColor = new THREE.Color();
+    textColor.setRGB(0, 0, 0);
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+    var  textFlaeche2004 = new THREE.Mesh(textGeometry , textMaterial);
+  
+    //Rotate text by 90 degrees
+    //text.rotation.x = Math.PI*0.5;
+    //text.rotation.y = Math.PI*0.5;
+    textFlaeche2004.translateY(-0.8*dataCantonY)
+    textFlaeche2004.translateX(0.05*dataCantonX)
+    textFlaeche2004.translateZ(1.0001*dataCantonZ)
+    scene.add(textFlaeche2004);
+
+
+////////////////////////////
+// Label: Siedlungsdichte //
+////////////////////////////
+
+var textGeometry = new THREE.TextGeometry("Siedlungsdichte:\n"+dichteLabel+ " Raumnutzer pro km2", {
+		font: font,
+		size: 0.04*dataCantonY,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textColor = new THREE.Color();
+    textColor.setRGB(255,255,255);
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+    var  textDichte2004 = new THREE.Mesh(textGeometry , textMaterial);
+  
+    //Rotate text by 90 degrees
+    textDichte2004.rotation.x = Math.PI*0.5;
+    //text.rotation.y = Math.PI*0.5;
+    textDichte2004.translateY(0.6*dataCantonZ)
+    textDichte2004.translateX(0.05*dataCantonX)
+    textDichte2004.translateZ(1.01*dataCantonY)
+    scene.add(textDichte2004);
+
+
+
+} );
+
+/*
+////////////////////////////////
+////////////////////////////////
+// Text fot potential tooltips//
+////////////////////////////////
+////////////////////////////////
+
+//////////////////
+// Written Text //
+//////////////////
+
+var fontLoader = new THREE.FontLoader();
+fontLoader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+	var textGeometry = new THREE.TextGeometry("Die Grundflaeche des grossen \nQuaders entspricht der Siedlungs-\nflaeche zum Zeitpunkt der dritten \nArealstatistik (2004/2009), die \nHoehe des Quaders \nentspricht der Siedlungsdichte \n(Raumnutzer pro Quadratmeter) \nzum selben Zeitpunkt", {
+		font: font,
+		size: 0.1,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textColor = new THREE.Color();
+    textColor.setRGB(0, 0, 0);
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+    var  text = new THREE.Mesh(textGeometry , textMaterial);
+    //Calculate size of the text field (for the box)
+    const boundingBox = new THREE.Box3().setFromObject(text)
+    const xSize = boundingBox.max.x - boundingBox.min.x
+    const ySize = boundingBox.max.y - boundingBox.min.y
+    const zSize = boundingBox.max.z - boundingBox.min.z
+    const maxSize = Math.max(xSize, ySize, zSize)
+    
+    //Rotate text by 90 degrees
+    text.rotation.x = Math.PI*0.5;
+    //text.rotation.y = Math.PI*0.5;
+    text.translateY(dataCantonY)
+    text.translateX(0.1)
+    text.translateZ(0.1)
+    scene.add(text);
+
+
+
+//////////////////////
+// Box for the Text //
+//////////////////////
+
+const textBox = new THREE.BoxGeometry(xSize*1.1,ySize*1.1,0.01);
+const materialTextBox = new THREE.MeshBasicMaterial ( {color: "#fff"});
+const boxTextBox = new THREE.Mesh( textBox, materialTextBox);
+//boxTextBox.rotation.x = Math.PI*0.5;
+boxTextBox.translateX(xSize*0.5)
+boxTextBox.translateY(-ySize*0.4)
+boxTextBox.translateZ(-0.01)
+text.add(boxTextBox);
+
 } );
 */
 
 
- 
 /////////////////////////
 // Rotate Entire Scene //
 /////////////////////////
@@ -449,7 +592,20 @@ var animate = function(){
 })
 }
 
+// Get the selected canton
+function updateView() {
+cameraControls.reset();
+camera.position.z = 5.5;
+cameraControls.updateProjectionMatrix();
+cameraControls.update();
+
 updateValue()
+}
+
+updateValue()
+
+
+
 
 </script>
 
