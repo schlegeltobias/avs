@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Arealstatistik 3D</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/renderers/CSS3DRenderer.js"></script>
+    <sricpt src="https://rawgit.com/mrdoob/three.js/master/examples/js/renderers/CSS2DRenderer.js"></sricpt>
+    <style>
+
+
+
+#Arealstatistik_Grafik {
+    font-size: 22px;
+    font-weight: 500;
+    font-family: Helvetica, Arial, sans-serif;
+
+}
+
+#Arealstatistik_outer_grid {
+    display: grid;
+    grid-gap: 0px;
+    grid-template-rows: repeat(auto-fill, 10px);
+    grid-template-columns: repeat(auto-fill, 40px);
+}
+
+#Arealstatistik_inner_grid {
+    display: grid;
+    grid-template-columns: 210px repeat(auto-fill, 400px);
+    grid-template-rows: 40px;
+    background-color: white;
+    padding: 10px 10px 10px 10px;
+    margin-top: 0px;
+    grid-gap: 50px;
+    
+}
+
+#chooseCanton {
+    margin-top: 7px;
+}
+
+
+ /* The container must be positioned relative: */
+ #dropdownSelectCanton {
+  position: relative;
+  font-family: inherit;
+  font-size: inherit;
+  background-color: #e1e1e1;
+  border: 0px;
+  display: grid;
+}
+
+#dropdownSelectCanton:hover {
+    background-color: #a6a6a6;
+}
+
+.labelSize {
+    color: #FFF;
+    font-family: sans-serif;
+    padding: 2px;
+    background: rgba( 0, 0, 0, .6 );
+			}
+
+#cameraBack {
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #e1e1e1;
+    border: 0px;
+    text-align: center;
+}
+
+#cameraBack:hover {
+    background-color: #a6a6a6;
+}
+
+</style>
+
+</head>
+<body>
+
+    <div id="Arealstatistik_Grafik">
+
+        <div id="Arealstatistik_inner_grid">
+            <!--Initialize a selection for Cantons-->
+            <p id="chooseCanton">Wähle einen Kanton:</p> 
+            <select id="dropdownSelectCanton" onclick = "updateValue()"></select>
+            <!--Initialize a button to set back scene-->
+            <button id="cameraBack" onclick = "updateView()">Kamera-Einstellung zurücksetzen</button> 
+        </div>
+        <div id="Arealstatistik_outer_grid">
+            <div id="first_cube"></div>
+            <div id="container"></div>
+        </div>
+
+    </div>
+
+<!--Run Java Script-->
+<script>
+
+
+////////////////////////////////////
+//Drop Down Menu to chose a canton//
+////////////////////////////////////
+
+// List all Cantons for the drop-down menu
+var allCantons = [{
+    label: "Aargau",
+    value: 1
+},
+{
+    label: "Appenzell Inerrhoden",
+    value: 2
+}, 
+{
+    label: "Appenzell Ausserrhoden",
+    value: 3
+}, 
+{
+    label: "Bern",
+    value: 4
+}, 
+{
+    label: "Basel-Landschaft",
+    value: 5
+}, 
+{
+    label: "Basel-Stadt",
+    value: 6
+}, 
+{
+    label: "Freiburg",
+    value: 7
+}, 
+{
+    label: "Genf",
+    value: 8
+}, 
+{
+    label: "Glarus",
+    value: 9
+}, 
+{
+    label: "Graubünden",
+    value: 10
+}, 
+{
+    label: "Jura",
+    value: 11
+}, 
+{
+    label: "Luzern",
+    value: 12
+}, 
+{
+    label: "Neuenburg",
+    value: 13
+}, 
+{
+    label: "Niedwalden",
+    value: 14
+}, 
+{
+    label: "Obwalden",
+    value: 15
+}, 
+{
+    label: "St. Gallen",
+    value: 16
+}, 
+{
+    label: "Schaffhausen",
+    value: 17
+}, 
+{
+    label: "Solothurn",
+    value: 18
+}, 
+{
+    label: "Schwyz",
+    value: 19
+}, 
+{
+    label: "Thurgau",
+    value: 20
+}, 
+{
+    label: "Tessin",
+    value: 21
+}, 
+{
+    label: "Uri",
+    value: 22
+}, 
+{
+    label: "Waadt",
+    value: 23
+}, 
+{
+    label: "Wallis",
+    value: 24
+}, 
+{
+    label: "Zug",
+    value: 25
+}, 
+{
+    label: "Zürich",
+    value: 26
+},
+{
+    label: "Kalib",
+    value: 27,
+}
+];
+
+// Add the Cantons to the button
+d3.select("#dropdownSelectCanton")
+    .selectAll("myOptions")
+        .data(allCantons)
+    .enter()
+        .append("option")
+    .text(function(d){ return d.label;}) // text shown in the menu
+    .attr("value", function (d){return d.value;}) //corresponding value returned
+
+
+///////////////////////////////////
+// Set the scene (is not updated)//
+///////////////////////////////////
+
+/// Scene: Set the scene incl. background
+var scene = new THREE.Scene();
+scene.background = new THREE.Color("white");
+/// Camera: Set the Camera
+/// Different camera types --> Here "PerspectiveCamera"
+/// First Number: "Field of View" --> Defines in degrees the extent of the scene that is seen on the display
+/// Second Number: Aspect Ratio, normally width/height
+var camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight);
+/// Because coordinates are at (0,0,0) either move camera out or cube in --> here cube in.
+camera.position.z = 1.5;
+/// Renderer: Where the magic happens --> WebGLRenderer is standard, other types rather for older browsers
+var renderer = new THREE.WebGLRenderer({antialias: true});
+
+/// Defines the size at which the figure is rendered
+renderer.setSize(0.99*window.innerWidth,0.90*window.innerHeight);
+/// This defines the canvas element (in the HTML) the rendere uses to display the scene --> other than body?
+document.body.appendChild(renderer.domElement);
+
+
+/////////////////////////////////////////////////
+// Define control for camera zoom and rotation //
+/////////////////////////////////////////////////
+var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
+cameraControls.target.set(0, 0, 0);
+// cameraControls.minDistance = 3.5;
+cameraControls.maxDistance = 9;
+
+///////////////////
+//Update Function//
+///////////////////
+
+// Get the selected canton
+function updateValue() {
+
+
+scene.clear()
+
+//////////////
+//////////////
+// Add grid //
+//////////////
+//////////////
+
+var gridSize = 60;
+var gridDivisions = 300;
+var gridColorLinesCenter = "#eee";
+var gridColorLinesGrid = "#eee";
+
+///////////
+// Floor //
+///////////
+
+var grid = new THREE.GridHelper(gridSize, gridDivisions, gridColorLinesCenter, gridColorLinesGrid);
+// Rotate grid by 90 Degree 
+grid.rotation.x = Math.PI*0.5;
+// Lower grid by half the size of the cube
+grid.translateX(gridSize/2)
+grid.translateZ(gridSize/2)
+scene.add(grid);
+
+/////////
+// RHS //
+/////////
+
+var grid = new THREE.GridHelper(gridSize, gridDivisions, gridColorLinesCenter, gridColorLinesGrid);
+grid.rotation.x = 0
+// Lower grid by half the size of the cube
+grid.translateX(gridSize/2)
+grid.translateZ(gridSize/2)
+scene.add(grid);
+
+/////////
+// LHS //
+/////////
+
+var grid = new THREE.GridHelper(gridSize, gridDivisions, gridColorLinesCenter, gridColorLinesGrid);
+// Rotate grid by 90 Degree 
+grid.rotation.z = Math.PI*0.5;
+// Lower grid by half the size of the cube
+grid.translateX(-gridSize/2)
+grid.translateZ(gridSize/2)
+scene.add(grid);
+
+
+/// Turn on shadows in the renderer
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.BasicShadowMap;
+/// Create a Spotlight and turn on shadows for the light
+var color = 0xffffff;
+var intensity = 1.4;
+var light = new THREE.SpotLight(color, intensity);
+light.position.set(7, -3, 7);
+light.castShadow = true;
+light.shadow.mapSize.width = 512;
+light.shadow.mapSize.height = 512;
+scene.add(light);
+
+var selectedCanton = d3.select("#dropdownSelectCanton option:checked").node().value
+
+d3.csv("https://raw.githubusercontent.com/schlegeltobias/avs/main/Arealstatistik_01lur.csv").then(function(data) {
+    data.forEach(function(d){
+        d.kntNr = +d.kntNr;
+        d.typ =+d.typ;
+        d.l2004 =+ d.l2004;
+        d.h2004 =+ d.h2004;
+        d.lwachstum =+ d.lwachstum;
+        d.hwachstum =+ d.hwachstum;
+        d.flaeche2004 =+ d.flaeche2004;
+        d.dichte2004 =+ d.dichte2004;
+        d.flaechewachstum =+ d.flaechewachstum;
+        d.dichtehypo =+ d.dichtehypo;
+});
+
+var dataCanton = data.filter(function(d){return d.kntNr == selectedCanton})
+
+console.log(dataCanton)
+
+/////////////////////////////////////
+// Save measures for chosen canton //
+/////////////////////////////////////
+
+var factor_a = 50
+var factor_d = 25
+var factor_g = 50
+var factor_gd = 25
+
+var dataCantonX = dataCanton.map(function(d) {return d.l2004/factor_a})
+var dataCantonY = dataCanton.map(function(d) {return d.l2004/factor_a})
+var dataCantonZ = dataCanton.map(function(d) {return d.h2004/factor_d})
+
+var dataGrowthX = dataCanton.map(function(d) {return d.lwachstum/factor_a})
+var dataGrowthY = dataCanton.map(function(d) {return d.lwachstum/factor_a})
+var dataGrowthZ = dataCanton.map(function(d) {return d.hwachstum/factor_gd})
+
+var cantonTyp = dataCanton.map(function(d) {return d.typ})
+
+////////////
+//Big Cube//
+////////////
+/// Add the cube using BoxGeometry. This is an object that contains all the points and fill (faces) of the cube
+var cube_status_quo = new THREE.BoxGeometry(1,1,1,)
+
+/// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
+if (cantonTyp == 1) {
+        var material = new THREE.MeshPhongMaterial({color: "#e2201a"})
+    } else if (cantonTyp ==2 ){
+        var material = new THREE.MeshPhongMaterial({color: "#ffc300"})
+    } else if (cantonTyp == 3) {
+        var material = new THREE.MeshPhongMaterial({color: "#81ff33"})  
+    } else if (cantonTyp == 4) {
+        var material = new THREE.MeshPhongMaterial({color: "#335dff"})
+    }
+
+
+material.shininess = 50;
+/// Mesh: A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene and move freely around
+var cube_sq = new THREE.Mesh(cube_status_quo,material);
+
+cube_sq.scale.x = dataCantonX;
+cube_sq.scale.y = dataCantonY;
+cube_sq.scale.z = dataCantonZ;
+
+// cube.receiveShadow = true;
+cube_sq.castShadow = true;
+
+/// Things we want to add are added to the scene to the coordinates (0,0,0)
+//scene.add(cube_sq);
+scene.add(cube_sq)
+
+/// Reposition cube
+cube_sq.translateX(dataCantonX/2);
+cube_sq.translateY(-dataCantonY/2);
+cube_sq.translateZ(dataCantonZ/2);
+
+///////////////////////////
+// Smaller Cube (Growth) //
+///////////////////////////
+/// Add the cube using BoxGeometry. This is an object that contains all the points and fill (faces) of the cube
+var cube_growth = new THREE.BoxGeometry(1,1,1,)
+
+/// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
+/// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
+if (cantonTyp == 1) {
+        var material_sc = new THREE.MeshPhongMaterial({color: "#e2201a"})
+    } else if (cantonTyp ==2 ){
+        var material_sc = new THREE.MeshPhongMaterial({color: "#ffc300"})
+    } else if (cantonTyp == 3) {
+        var material_sc = new THREE.MeshPhongMaterial({color: "#81ff33"})  
+    } else if (cantonTyp == 4) {
+        var material_sc = new THREE.MeshPhongMaterial({color: "#335dff"})
+    }
+
+
+material_sc.shininess = 50;
+/// Mesh: A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene and move freely around
+var cube_growth = new THREE.Mesh(cube_growth,material_sc);
+
+cube_growth.scale.x = dataGrowthX;
+cube_growth.scale.y = dataGrowthY;
+cube_growth.scale.z = dataGrowthZ;
+
+// cube.receiveShadow = true;
+cube_growth.castShadow = true;
+
+/// Things we want to add are added to the scene to the coordinates (0,0,0)
+scene.add(cube_growth);
+
+/// Reposition cube
+
+shift = 0.6+dataGrowthX*0.5  
+
+cube_growth.translateX(shift);
+cube_growth.translateY(-dataGrowthY/2);
+cube_growth.translateZ(dataGrowthZ/2);
+
+
+//////////////////////////////
+//////////////////////////////
+// Text for showing measures//
+//////////////////////////////
+//////////////////////////////
+
+var flaecheLabel = dataCanton.map(function(d){return d.flaeche2004})
+var dichteLabel = dataCanton.map(function(d) {return d.dichte2004})
+
+var fontLoader = new THREE.FontLoader();
+fontLoader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+////////////////////////////
+// Label: Siedlungsdichte //
+////////////////////////////
+
+var colorLabel = "#000"
+
+var textGeometry = new THREE.TextGeometry("Siedlungsflaeche: "+flaecheLabel+ " km2", {
+		font: font,
+		size: 0.05,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: colorLabel });
+    var  textFlaeche2004 = new THREE.Mesh(textGeometry , textMaterial);
+  
+    textFlaeche2004.translateY(-1.1*dataCantonY)
+    textFlaeche2004.translateX(1.1*dataCantonX)
+    textFlaeche2004.translateZ(0.001)
+    scene.add(textFlaeche2004);
+
+/*
+var textGeometry = new THREE.TextGeometry("Siedlungsflaeche:\n"+flaecheLabel+ " km2", {
+		font: font,
+		size: 0.05*dataCantonY,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textColor = new THREE.Color();
+    textColor.setRGB(255, 255, 255);
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+    var  textFlaeche2004 = new THREE.Mesh(textGeometry , textMaterial);
+  
+    //Rotate text by 90 degrees
+    //text.rotation.x = Math.PI*0.5;
+    //text.rotation.y = Math.PI*0.5;
+    textFlaeche2004.translateY(-0.8*dataCantonY)
+    textFlaeche2004.translateX(0.05*dataCantonX)
+    textFlaeche2004.translateZ(1.0001*dataCantonZ)
+    scene.add(textFlaeche2004);
+*/
+
+////////////////////////////
+// Label: Siedlungsdichte //
+////////////////////////////
+
+var textGeometry = new THREE.TextGeometry("Siedlungsdichte: "+dichteLabel+ " Nutzer pro km2", {
+		font: font,
+		size: 0.05,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: colorLabel });
+    var  textDichte2004 = new THREE.Mesh(textGeometry , textMaterial);
+    //Rotate text by 90 degrees
+    textDichte2004.rotation.x = Math.PI*0.5;
+    textDichte2004.rotation.y = Math.PI*0.5;
+    const boundingBox = new THREE.Box3().setFromObject(textDichte2004)
+    const xSize = boundingBox.max.x - boundingBox.min.x
+    const ySize = boundingBox.max.y - boundingBox.min.y
+    const zSize = boundingBox.max.z - boundingBox.min.z
+    const maxSize = Math.max(xSize, ySize, zSize)
+    translateX = ySize+0.3
+    textDichte2004.translateX(-translateX)
+    textDichte2004.translateY(1.1*dataCantonZ)
+    textDichte2004.translateZ(0.001)
+    scene.add(textDichte2004);
+
+
+
+/*
+var textGeometry = new THREE.TextGeometry("Siedlungsdichte:\n"+dichteLabel+ " Raumnutzer pro km2", {
+		font: font,
+		size: 0.04*dataCantonY,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textColor = new THREE.Color();
+    textColor.setRGB(255,255,255);
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+    var  textDichte2004 = new THREE.Mesh(textGeometry , textMaterial);
+  
+    //Rotate text by 90 degrees
+    textDichte2004.rotation.x = Math.PI*0.5;
+    //text.rotation.y = Math.PI*0.5;
+    textDichte2004.translateY(0.6*dataCantonZ)
+    textDichte2004.translateX(0.05*dataCantonX)
+    textDichte2004.translateZ(1.01*dataCantonY)
+    scene.add(textDichte2004);
+*/
+////////////////////////
+// Achsenbeschriftung //
+////////////////////////
+
+var ColorGridLabel = "#bebebe"
+var SizeGridLabel = 0.025
+// 10 km Marke
+var textGeometry = new THREE.TextGeometry("10 km", {
+		font: font,
+		size: SizeGridLabel,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: ColorGridLabel });
+    var  textYAchse1 = new THREE.Mesh(textGeometry , textMaterial);
+  
+    textYAchse1.translateY(-0.18)
+    textYAchse1.translateX(0.41)
+    textYAchse1.translateZ(0)
+    scene.add(textYAchse1);
+
+// 50 km Marke
+var textGeometry = new THREE.TextGeometry("50 km", {
+    font: font,
+    size: SizeGridLabel,
+    height: 0,
+    depth: 5,
+    curveSegments: 12,
+    bevelEnabled: false,
+    bevelThickness: 1,
+    bevelSize: 2,
+    bevelOffset: 0,
+    bevelSegments: 1
+});
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: ColorGridLabel });
+    var  textYAchse2 = new THREE.Mesh(textGeometry , textMaterial);
+
+
+    textYAchse2.translateY(-0.99)
+    textYAchse2.translateX(0.41)
+    textYAchse2.translateZ(0)
+    scene.add(textYAchse2);
+
+// 5000 Nutzer/km2 Marke
+var textGeometry = new THREE.TextGeometry("5'000\nNutzer/km2", {
+		font: font,
+		size: SizeGridLabel,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: ColorGridLabel });
+    var  textZAchse1 = new THREE.Mesh(textGeometry , textMaterial);
+    textZAchse1.rotation.x = Math.PI*0.5;
+    textZAchse1.translateX(0.41)
+    textZAchse1.translateY(0.25)
+    textZAchse1.translateZ(0)
+    scene.add(textZAchse1);
+
+// 25 Nutzer/km2 Marke
+var textGeometry = new THREE.TextGeometry("25'000\nNutzer/km2", {
+    font: font,
+    size: SizeGridLabel,
+    height: 0,
+    depth: 5,
+    curveSegments: 12,
+    bevelEnabled: false,
+    bevelThickness: 1,
+    bevelSize: 2,
+    bevelOffset: 0,
+    bevelSegments: 1
+});
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: ColorGridLabel });
+    var  textZAchse2 = new THREE.Mesh(textGeometry , textMaterial);
+    textZAchse2.rotation.x = Math.PI*0.5;
+    textZAchse2.translateX(0.41)
+    textZAchse2.translateY(1.25)
+    textZAchse2.translateZ(0)
+    scene.add(textZAchse2);
+
+////////////
+// Legend //
+////////////
+
+const legendColorBox = new THREE.BoxGeometry(0.05,0.05,0.01);
+if (cantonTyp == 1) {
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#e2201a"})
+    } else if (cantonTyp ==2 ){
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#ffc300"})
+    } else if (cantonTyp == 3) {
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#81ff33"})  
+    } else if (cantonTyp == 4) {
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#335dff"})
+    }
+const boxLegendColorBox = new THREE.Mesh( legendColorBox, materialLegendColorBox);
+boxLegendColorBox.rotation.x = Math.PI*0.5;
+boxLegendColorBox.rotation.y = Math.PI*0.5;
+boxLegendColorBox.translateX(-0.5);
+boxLegendColorBox.translateY(0.5);
+boxLegendColorBox.translateZ(0.01);
+scene.add(boxLegendColorBox);
+
+});
+
+/*
+////////////////////////////////
+////////////////////////////////
+// Text fot potential tooltips//
+////////////////////////////////
+////////////////////////////////
+
+//////////////////
+// Written Text //
+//////////////////
+
+var fontLoader = new THREE.FontLoader();
+fontLoader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+	var textGeometry = new THREE.TextGeometry("Die Grundflaeche des grossen \nQuaders entspricht der Siedlungs-\nflaeche zum Zeitpunkt der dritten \nArealstatistik (2004/2009), die \nHoehe des Quaders \nentspricht der Siedlungsdichte \n(Raumnutzer pro Quadratmeter) \nzum selben Zeitpunkt", {
+		font: font,
+		size: 0.1,
+		height: 0,
+        depth: 5,
+		curveSegments: 12,
+		bevelEnabled: false,
+		bevelThickness: 1,
+		bevelSize: 2,
+		bevelOffset: 0,
+		bevelSegments: 1
+	});
+    var  textColor = new THREE.Color();
+    textColor.setRGB(0, 0, 0);
+    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
+    var  text = new THREE.Mesh(textGeometry , textMaterial);
+    //Calculate size of the text field (for the box)
+    const boundingBox = new THREE.Box3().setFromObject(text)
+    const xSize = boundingBox.max.x - boundingBox.min.x
+    const ySize = boundingBox.max.y - boundingBox.min.y
+    const zSize = boundingBox.max.z - boundingBox.min.z
+    const maxSize = Math.max(xSize, ySize, zSize)
+    
+    //Rotate text by 90 degrees
+    text.rotation.x = Math.PI*0.5;
+    //text.rotation.y = Math.PI*0.5;
+    text.translateY(dataCantonY)
+    text.translateX(0.1)
+    text.translateZ(0.1)
+    scene.add(text);
+
+//////////////////////
+// Box for the Text //
+//////////////////////
+
+const textBox = new THREE.BoxGeometry(xSize*1.1,ySize*1.1,0.01);
+const materialTextBox = new THREE.MeshBasicMaterial ( {color: "#fff"});
+const boxTextBox = new THREE.Mesh( textBox, materialTextBox);
+//boxTextBox.rotation.x = Math.PI*0.5;
+boxTextBox.translateX(xSize*0.5)
+boxTextBox.translateY(-ySize*0.4)
+boxTextBox.translateZ(-0.01)
+text.add(boxTextBox);
+
+} );
+*/
+
+/////////////////////////
+// Rotate Entire Scene //
+/////////////////////////
+
+scene.rotation.x = -1.2;
+scene.rotation.y = 0;
+scene.rotation.z =-0.6;
+
+/////////////////////////////////////////////////////////////////
+// Helper for camera and light (can be disabled when finished) //
+/////////////////////////////////////////////////////////////////
+/*
+const helper = new THREE.CameraHelper( light.shadow.camera );
+scene.add( helper );
+var worldAxis = new THREE.AxesHelper(20);
+scene.add(worldAxis);
+*/
+/// Renderer or animate loop: creates a loop that causes the renderer to draw the scene every time the screen is refreshed
+renderer.render(scene,camera);
+
+//////////////////////////////////////
+// Enamble Camera Rotation and Zoom //
+//////////////////////////////////////
+
+var animate = function(){
+    var clock = new THREE.Clock();
+    var delta = clock.getDelta();
+    cameraControls.update(delta);
+    renderer.render(scene,camera);
+    requestAnimationFrame(animate);
+    }
+    animate();
+})
+}
+
+// Get the selected canton
+function updateView() {
+cameraControls.reset();
+camera.position.z = 1.5;
+cameraControls.update();
+}
+
+updateValue()
+
+
+
+
+</script>
+
+</body>
+
+</html>
