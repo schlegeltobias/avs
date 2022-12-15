@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8" />
     <title>Arealstatistik 3D</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -237,9 +237,9 @@ scene.background = new THREE.Color("white");
 /// Different camera types --> Here "PerspectiveCamera"
 /// First Number: "Field of View" --> Defines in degrees the extent of the scene that is seen on the display
 /// Second Number: Aspect Ratio, normally width/height
-var camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight);
+var camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight);
 /// Because coordinates are at (0,0,0) either move camera out or cube in --> here cube in.
-camera.position.z = 3;
+camera.position.z = 1.7;
 /// Renderer: Where the magic happens --> WebGLRenderer is standard, other types rather for older browsers
 var renderer = new THREE.WebGLRenderer({antialias: true});
 
@@ -374,13 +374,13 @@ var cube_status_quo = new THREE.BoxGeometry(1,1,1,)
 
 /// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
 if (cantonTyp == 1) {
-        var material = new THREE.MeshPhongMaterial({color: "#e2201a"})
+        var material = new THREE.MeshPhongMaterial({color: "#ff7e6e"})
     } else if (cantonTyp ==2 ){
-        var material = new THREE.MeshPhongMaterial({color: "#ffc300"})
+        var material = new THREE.MeshPhongMaterial({color: "#7ec8ae"})
     } else if (cantonTyp == 3) {
-        var material = new THREE.MeshPhongMaterial({color: "#81ff33"})  
+        var material = new THREE.MeshPhongMaterial({color: "#68bddc"})  
     } else if (cantonTyp == 4) {
-        var material = new THREE.MeshPhongMaterial({color: "#335dff"})
+        var material = new THREE.MeshPhongMaterial({color: "#cf99cb"})
     }
 
 
@@ -413,13 +413,13 @@ var cube_growth = new THREE.BoxGeometry(1,1,1,)
 /// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
 /// Material is used to color the cube. There are other materials than "MeshPhongMaterial" --> here used to show shadows
 if (cantonTyp == 1) {
-        var material_sc = new THREE.MeshPhongMaterial({color: "#e2201a"})
+        var material_sc = new THREE.MeshPhongMaterial({color: "#ff7e6e"})
     } else if (cantonTyp ==2 ){
-        var material_sc = new THREE.MeshPhongMaterial({color: "#ffc300"})
+        var material_sc = new THREE.MeshPhongMaterial({color: "#7ec8ae"})
     } else if (cantonTyp == 3) {
-        var material_sc = new THREE.MeshPhongMaterial({color: "#81ff33"})  
+        var material_sc = new THREE.MeshPhongMaterial({color: "#68bddc"})  
     } else if (cantonTyp == 4) {
-        var material_sc = new THREE.MeshPhongMaterial({color: "#335dff"})
+        var material_sc = new THREE.MeshPhongMaterial({color: "#cf99cb"})
     }
 
 
@@ -561,8 +561,9 @@ var textGeometry = new THREE.TextGeometry("25'000\nNutzer/km2", {
 ////////////
 
 var colorLabel = "#000"
-var legendTextSize = 0.03
-var xTranslate = -1.7
+var legendTextSize = 0.02
+var xTranslate = -1.1
+var zTranslate = 0.01
 
 /////////////////////
 // Siedlungsfläche //
@@ -616,8 +617,8 @@ var textGeometry = new THREE.TextGeometry("1) Siedlungsflaeche 2004/2009: "+flae
     textLegendFlaeche2004.rotation.y = Math.PI*0.5;
     // Translate
     textLegendFlaeche2004.translateX(xTranslate)
-    textLegendFlaeche2004.translateY(1.1)
-    textLegendFlaeche2004.translateZ(0.001)
+    textLegendFlaeche2004.translateY(0.65)
+    textLegendFlaeche2004.translateZ(zTranslate)
     scene.add(textLegendFlaeche2004);
 
 ////////////////////////////
@@ -675,8 +676,8 @@ var textGeometry = new THREE.TextGeometry("2) Siedlungsdichte 2004/2009: "+dicht
     textLegendDichte2004.rotation.y = Math.PI*0.5;
     // Translate
     textLegendDichte2004.translateX(xTranslate)
-    textLegendDichte2004.translateY(1)
-    textLegendDichte2004.translateZ(0.001)
+    textLegendDichte2004.translateY(0.6)
+    textLegendDichte2004.translateZ(zTranslate)
     scene.add(textLegendDichte2004);
 
 /////////////////////////////////////
@@ -737,13 +738,13 @@ var textGeometry = new THREE.TextGeometry("3) Siedlungsflaechenwachstum bis 2013
     textLegendFlaecheWachstum.rotation.y = Math.PI*0.5;
     // Translate
     textLegendFlaecheWachstum.translateX(xTranslate)
-    textLegendFlaecheWachstum.translateY(0.9)
-    textLegendFlaecheWachstum.translateZ(0.001)
+    textLegendFlaecheWachstum.translateY(0.55)
+    textLegendFlaecheWachstum.translateZ(zTranslate)
     scene.add(textLegendFlaecheWachstum);
 
 
 //////////////////////////////////////////////////
-// Label: pote zielles Siedlungsflächenwachstum //
+// Label: potenzielles Siedlungsflächenwachstum //
 //////////////////////////////////////////////////
 
 // Label
@@ -797,8 +798,8 @@ var textGeometry = new THREE.TextGeometry("4) Hypothetische Siedlungsdichte der 
     hypoDichteWachstum.rotation.x = Math.PI*0.5;
     hypoDichteWachstum.rotation.y = Math.PI*0.5;
     hypoDichteWachstum.translateX(xTranslate)
-    hypoDichteWachstum.translateY(0.8)
-    hypoDichteWachstum.translateZ(0.001)
+    hypoDichteWachstum.translateY(0.5)
+    hypoDichteWachstum.translateZ(zTranslate)
     scene.add(hypoDichteWachstum);
 
 ////////////////////
@@ -808,20 +809,20 @@ var textGeometry = new THREE.TextGeometry("4) Hypothetische Siedlungsdichte der 
 // Symbol
 const legendColorBox = new THREE.BoxGeometry(0.04,0.04,0.001);
 if (cantonTyp == 1) {
-        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#e2201a"})
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#ff7e6e"})
     } else if (cantonTyp ==2 ){
-        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#ffc300"})
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#7ec8ae"})
     } else if (cantonTyp == 3) {
-        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#81ff33"})  
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#68bddc"})  
     } else if (cantonTyp == 4) {
-        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#335dff"})
+        var materialLegendColorBox = new THREE.MeshBasicMaterial({color: "#cf99cb"})
     }
 const boxLegendColorBox = new THREE.Mesh( legendColorBox, materialLegendColorBox);
 boxLegendColorBox.rotation.x = Math.PI*0.5;
 boxLegendColorBox.rotation.y = Math.PI*0.5;
-boxLegendColorBox.translateX(-1.68);
-boxLegendColorBox.translateY(0.715);
-boxLegendColorBox.translateZ(0.001);
+boxLegendColorBox.translateX(-1.08);
+boxLegendColorBox.translateY(0.45);
+boxLegendColorBox.translateZ(zTranslate);
 scene.add(boxLegendColorBox);
 
 // Legend
@@ -834,8 +835,6 @@ if (cantonTyp == 1) {
     } else if (cantonTyp == 4) {
         var cantonTypLegend = "Stadtkanton"
     }
-
-
 var textGeometry = new THREE.TextGeometry(cantonTypLegend, {
 		font: font,
 		size: legendTextSize,
@@ -854,15 +853,25 @@ var textGeometry = new THREE.TextGeometry(cantonTypLegend, {
     textLegendTyp.rotation.x = Math.PI*0.5;
     textLegendTyp.rotation.y = Math.PI*0.5;
     // Translate
-    textLegendTyp.translateX(-1.65)
-    textLegendTyp.translateY(0.7)
-    textLegendTyp.translateZ(0.001)
+    textLegendTyp.translateX(-1.05)
+    textLegendTyp.translateY(0.442)
+    textLegendTyp.translateZ(zTranslate)
     scene.add(textLegendTyp);
 
+//////////////////////////
+// Background of Legend //
+//////////////////////////
 
-
-
-
+// Symbol
+const legendBackgroundBox = new THREE.BoxGeometry(1.1,0.3,0.001);
+const materialLegendBackgroundBox = new THREE.MeshBasicMaterial({color: "#FBFBFB"}) 
+const boxLegendBackgroundBox = new THREE.Mesh( legendBackgroundBox, materialLegendBackgroundBox);
+boxLegendBackgroundBox.rotation.x = Math.PI*0.5;
+boxLegendBackgroundBox.rotation.y = Math.PI*0.5;
+boxLegendBackgroundBox.translateX(-0.56);
+boxLegendBackgroundBox.translateY(0.55);
+boxLegendBackgroundBox.translateZ(0.005);
+scene.add(boxLegendBackgroundBox);
 
 
 
@@ -973,7 +982,7 @@ var animate = function(){
 // Get the selected canton
 function updateView() {
 cameraControls.reset();
-camera.position.z = 3;
+camera.position.z = 1.7;
 cameraControls.update();
 }
 
