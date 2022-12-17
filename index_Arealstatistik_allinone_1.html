@@ -42,19 +42,18 @@
     margin-top: 7px;
 }
 
-
  /* The container must be positioned relative: */
  #dropdownSelectCanton {
   position: relative;
   font-family: inherit;
   font-size: inherit;
-  background-color: #e1e1e1;
+  background-color: #FBFBFB;
   border: 0px;
-  display: grid;
 }
 
 #dropdownSelectCanton:hover {
-    background-color: #a6a6a6;
+    background-color: #eeeeee;
+    display: block;
 }
 
 .labelSize {
@@ -67,13 +66,13 @@
 #cameraBack {
     font-family: inherit;
     font-size: inherit;
-    background-color: #e1e1e1;
+    background-color: #FBFBFB;
     border: 0px;
     text-align: center;
 }
 
 #cameraBack:hover {
-    background-color: #a6a6a6;
+    background-color: #eeeeee;
 }
 
 </style>
@@ -85,8 +84,36 @@
 
         <div id="Arealstatistik_inner_grid">
             <!--Initialize a selection for Cantons-->
-            <p id="chooseCanton">Wähle einen Kanton:</p> 
-            <select id="dropdownSelectCanton" onclick = "updateValue()"></select>
+            <p id="chooseCanton">Wähle einen Kanton:</p>
+            <select id="dropdownSelectCanton">
+                <option class="ShowCanton" value="1" onclick = "updateValue()">Aargau</option>
+                <option class="ShowCanton" value="2" onclick = "updateValue()">Appenzell Innerrhoden</option>
+                <option class="ShowCanton" value="3" onclick = "updateValue()">Appenzell Ausserrhoden</option>
+                <option class="ShowCanton" value="4" onclick = "updateValue()" >Bern</option>
+                <option class="ShowCanton" value="5" onclick = "updateValue()">Basel-Landschaft</option>
+                <option class="ShowCanton" value="6" onclick = "updateValue()">Basel-Stadt</option>
+                <option class="ShowCanton" value="7" onclick = "updateValue()">Freiburg</option>
+                <option class="ShowCanton" value="8" onclick = "updateValue()">Genf</option>
+                <option class="ShowCanton" value="9" onclick = "updateValue()">Glarus</option>
+                <option class="ShowCanton" value="10" onclick = "updateValue()">Graubünden</option>
+                <option class="ShowCanton" value="11" onclick = "updateValue()">Jura</option>
+                <option class="ShowCanton" value="12" onclick = "updateValue()">Luzern</option>
+                <option class="ShowCanton" value="13" onclick = "updateValue()">Neuenburg</option>
+                <option class="ShowCanton" value="14" onclick = "updateValue()">Niedwalden</option>
+                <option class="ShowCanton" value="15" onclick = "updateValue()">Obwalden</option>
+                <option class="ShowCanton" value="16" onclick = "updateValue()">St. Gallen</option>
+                <option class="ShowCanton" value="17" onclick = "updateValue()">Schaffhausen</option>
+                <option class="ShowCanton" value="18" onclick = "updateValue()">Solothurn</option>
+                <option class="ShowCanton" value="19" onclick = "updateValue()">Schwyz</option>
+                <option class="ShowCanton" value="20" onclick = "updateValue()">Thurgau</option>
+                <option class="ShowCanton" value="21" onclick = "updateValue()">Tessin</option>
+                <option class="ShowCanton" value="22" onclick = "updateValue()">Uri</option>
+                <option class="ShowCanton" value="23" onclick = "updateValue()">Waadt</option>
+                <option class="ShowCanton" value="24" onclick = "updateValue()">Wallis</option>
+                <option class="ShowCanton" value="25" onclick = "updateValue()">Zug</option>
+                <option class="ShowCanton" value="26" onclick = "updateValue()">Zürich</option>
+                <option class="ShowCanton" value="27" onclick = "updateValue()">Kalib</option>
+            </select>
             <!--Initialize a button to set back scene-->
             <button id="cameraBack" onclick = "updateView()">Kamera-Einstellung zurücksetzen</button> 
         </div>
@@ -99,132 +126,6 @@
 
 <!--Run Java Script-->
 <script>
-
-
-////////////////////////////////////
-//Drop Down Menu to chose a canton//
-////////////////////////////////////
-
-// List all Cantons for the drop-down menu
-var allCantons = [{
-    label: "Aargau",
-    value: 1
-},
-{
-    label: "Appenzell Inerrhoden",
-    value: 2
-}, 
-{
-    label: "Appenzell Ausserrhoden",
-    value: 3
-}, 
-{
-    label: "Bern",
-    value: 4
-}, 
-{
-    label: "Basel-Landschaft",
-    value: 5
-}, 
-{
-    label: "Basel-Stadt",
-    value: 6
-}, 
-{
-    label: "Freiburg",
-    value: 7
-}, 
-{
-    label: "Genf",
-    value: 8
-}, 
-{
-    label: "Glarus",
-    value: 9
-}, 
-{
-    label: "Graubünden",
-    value: 10
-}, 
-{
-    label: "Jura",
-    value: 11
-}, 
-{
-    label: "Luzern",
-    value: 12
-}, 
-{
-    label: "Neuenburg",
-    value: 13
-}, 
-{
-    label: "Niedwalden",
-    value: 14
-}, 
-{
-    label: "Obwalden",
-    value: 15
-}, 
-{
-    label: "St. Gallen",
-    value: 16
-}, 
-{
-    label: "Schaffhausen",
-    value: 17
-}, 
-{
-    label: "Solothurn",
-    value: 18
-}, 
-{
-    label: "Schwyz",
-    value: 19
-}, 
-{
-    label: "Thurgau",
-    value: 20
-}, 
-{
-    label: "Tessin",
-    value: 21
-}, 
-{
-    label: "Uri",
-    value: 22
-}, 
-{
-    label: "Waadt",
-    value: 23
-}, 
-{
-    label: "Wallis",
-    value: 24
-}, 
-{
-    label: "Zug",
-    value: 25
-}, 
-{
-    label: "Zürich",
-    value: 26
-},
-{
-    label: "Kalib",
-    value: 27,
-}
-];
-
-// Add the Cantons to the button
-d3.select("#dropdownSelectCanton")
-    .selectAll("myOptions")
-        .data(allCantons)
-    .enter()
-        .append("option")
-    .text(function(d){ return d.label;}) // text shown in the menu
-    .attr("value", function (d){return d.value;}) //corresponding value returned
-
 
 ///////////////////////////////////
 // Set the scene (is not updated)//
@@ -345,7 +246,6 @@ d3.csv("https://raw.githubusercontent.com/schlegeltobias/avs/main/Arealstatistik
 
 var dataCanton = data.filter(function(d){return d.kntNr == selectedCanton})
 
-console.log(dataCanton)
 
 /////////////////////////////////////
 // Save measures for chosen canton //
@@ -458,7 +358,7 @@ var flaecheWachstumLabel = dataCanton.map(function(d){return d.flaechewachstum})
 var dichteWachstumLabel = dataCanton.map(function(d){return d.dichtehypo})
 
 var fontLoader = new THREE.FontLoader();
-fontLoader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+fontLoader.load( 'https://raw.githubusercontent.com/schlegeltobias/avs/main/Typewriter_Condensed_Regular.json', function ( font ) {
 
 ////////////////   
 ////////////////
@@ -488,7 +388,7 @@ var textGeometry = new THREE.TextGeometry("10 km", {
     textYAchse1.translateX(0.41)
     textYAchse1.translateZ(0)
     scene.add(textYAchse1);
-
+/*
 // 50 km Marke
 var textGeometry = new THREE.TextGeometry("50 km", {
     font: font,
@@ -510,7 +410,7 @@ var textGeometry = new THREE.TextGeometry("50 km", {
     textYAchse2.translateX(0.41)
     textYAchse2.translateZ(0)
     scene.add(textYAchse2);
-
+*/
 // 5000 Nutzer/km2 Marke
 var textGeometry = new THREE.TextGeometry("5'000\nNutzer/km2", {
 		font: font,
@@ -531,7 +431,7 @@ var textGeometry = new THREE.TextGeometry("5'000\nNutzer/km2", {
     textZAchse1.translateY(0.25)
     textZAchse1.translateZ(0)
     scene.add(textZAchse1);
-
+/*
 // 25 Nutzer/km2 Marke
 var textGeometry = new THREE.TextGeometry("25'000\nNutzer/km2", {
     font: font,
@@ -552,7 +452,7 @@ var textGeometry = new THREE.TextGeometry("25'000\nNutzer/km2", {
     textZAchse2.translateY(1.25)
     textZAchse2.translateZ(0)
     scene.add(textZAchse2);
-
+*/
 
 ////////////
 ////////////
@@ -598,7 +498,7 @@ var textGeometry = new THREE.TextGeometry("1", {
     scene.add(textLabelFlaeche2004);
 
 // Legend
-var textGeometry = new THREE.TextGeometry("1) Siedlungsflaeche 2004/2009: "+flaecheLabel+" km2", {
+var textGeometry = new THREE.TextGeometry("1) Siedlungsfläche 2004/2009: "+flaecheLabel+" km2", {
 		font: font,
 		size: legendTextSize,
 		height: 0,
@@ -713,13 +613,13 @@ var textGeometry = new THREE.TextGeometry("3", {
     // Translate
     shiftLabel = 0.56+dataGrowthX*0.5  
     textLabelFlaecheWachstum.translateX(0.6)
-    textLabelFlaecheWachstum.translateY(-dataGrowthY)
+    textLabelFlaecheWachstum.translateY(-0.9*dataGrowthY)
     textLabelFlaecheWachstum.translateZ(1.0001*dataGrowthZ)
     scene.add(textLabelFlaecheWachstum);
 
 
 // Legend
-var textGeometry = new THREE.TextGeometry("3) Siedlungsflaechenwachstum bis 2013/2018: "+flaecheWachstumLabel+" km2", {
+var textGeometry = new THREE.TextGeometry("3) Siedlungsflächenwachstum bis 2013/2018: "+flaecheWachstumLabel+" km2", {
 		font: font,
 		size: legendTextSize,
 		height: 0,
@@ -780,7 +680,7 @@ var textGeometry = new THREE.TextGeometry("4", {
 
 
 // Legend
-var textGeometry = new THREE.TextGeometry("4) Hypothetische Siedlungsdichte der neuen Siedlungsflaeche: "+dichteWachstumLabel+ " Nutzer pro km2", {
+var textGeometry = new THREE.TextGeometry("4) Hypothetische Siedlungsdichte der neuen Siedlungsfläche: "+dichteWachstumLabel+ " Nutzer pro km2", {
 		font: font,
 		size: legendTextSize,
 		height: 0,
@@ -829,11 +729,11 @@ scene.add(boxLegendColorBox);
 if (cantonTyp == 1) {
         var cantonTypLegend = "Agglomerationskanton"
     } else if (cantonTyp ==2 ){
-        var cantonTypLegend = "Landkanton"
+        var cantonTypLegend = "Ländlicher Kanton"
     } else if (cantonTyp == 3) {
         var cantonTypLegend = "Bergkanton" 
     } else if (cantonTyp == 4) {
-        var cantonTypLegend = "Stadtkanton"
+        var cantonTypLegend = "Städtischer Kanton"
     }
 var textGeometry = new THREE.TextGeometry(cantonTypLegend, {
 		font: font,
@@ -876,72 +776,6 @@ scene.add(boxLegendBackgroundBox);
 
 
 } );
-
-
-
-
-/*
-////////////////////////////////
-////////////////////////////////
-// Text fot potential tooltips//
-////////////////////////////////
-////////////////////////////////
-
-//////////////////
-// Written Text //
-//////////////////
-
-var fontLoader = new THREE.FontLoader();
-fontLoader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-	var textGeometry = new THREE.TextGeometry("Die Grundflaeche des grossen \nQuaders entspricht der Siedlungs-\nflaeche zum Zeitpunkt der dritten \nArealstatistik (2004/2009), die \nHoehe des Quaders \nentspricht der Siedlungsdichte \n(Raumnutzer pro Quadratmeter) \nzum selben Zeitpunkt", {
-		font: font,
-		size: 0.1,
-		height: 0,
-        depth: 5,
-		curveSegments: 12,
-		bevelEnabled: false,
-		bevelThickness: 1,
-		bevelSize: 2,
-		bevelOffset: 0,
-		bevelSegments: 1
-	});
-    var  textColor = new THREE.Color();
-    textColor.setRGB(0, 0, 0);
-    var  textMaterial = new THREE.MeshBasicMaterial({ color: textColor });
-    var  text = new THREE.Mesh(textGeometry , textMaterial);
-    //Calculate size of the text field (for the box)
-    const boundingBox = new THREE.Box3().setFromObject(text)
-    const xSize = boundingBox.max.x - boundingBox.min.x
-    const ySize = boundingBox.max.y - boundingBox.min.y
-    const zSize = boundingBox.max.z - boundingBox.min.z
-    const maxSize = Math.max(xSize, ySize, zSize)
-    
-    //Rotate text by 90 degrees
-    text.rotation.x = Math.PI*0.5;
-    //text.rotation.y = Math.PI*0.5;
-    text.translateY(dataCantonY)
-    text.translateX(0.1)
-    text.translateZ(0.1)
-    scene.add(text);
-
-
-
-//////////////////////
-// Box for the Text //
-//////////////////////
-
-const textBox = new THREE.BoxGeometry(xSize*1.1,ySize*1.1,0.01);
-const materialTextBox = new THREE.MeshBasicMaterial ( {color: "#fff"});
-const boxTextBox = new THREE.Mesh( textBox, materialTextBox);
-//boxTextBox.rotation.x = Math.PI*0.5;
-boxTextBox.translateX(xSize*0.5)
-boxTextBox.translateY(-ySize*0.4)
-boxTextBox.translateZ(-0.01)
-text.add(boxTextBox);
-
-} );
-*/
 
 
 /////////////////////////
